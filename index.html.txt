@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mis Medicamentos 💊</title>
+
+<style>
+body { font-family: Arial; background:#fff0f5; padding:15px;}
+h1 { text-align:center; color:#ff4d88;}
+.card { background:white; padding:15px; margin:10px 0; border-radius:15px;}
+input, select { width:100%; padding:10px; margin:5px 0; border-radius:10px;}
+button { background:#ff4d88; color:white; padding:10px; border:none; border-radius:10px;}
+.alerta { color:red; font-weight:bold;}
+</style>
+</head>
+
+<body>
+
+<h1>💊 Mis Medicamentos</h1>
+
+<div class="card">
+<input id="nombre" placeholder="Nombre">
+<input type="date" id="inicio">
+<input type="date" id="fin">
+
+<select id="tipo">
+<option>Pastilla</option>
+<option>Polvo</option>
+</select>
+
+<input type="number" id="dosis" placeholder="Veces al día">
+<input type="number" id="cantidad" placeholder="Cantidad total">
+
+<button onclick="agregar()">Guardar 💖</button>
+</div>
+
+<div id="lista"></div>
+
+<h2>📊 Historial</h2>
+<div id="historial"></div>
+
+<script>
+let meds = JSON.parse(localStorage.getItem("meds")) || [];
+let historial = JSON.parse(localStorage.getItem("historial")) || [];
+
+function guardar(){
+    localStorage.setItem("meds", JSON.stringify(meds));
+    localStorage.setItem("historial", JSON.stringify(historial));
+}
+
+function agregar(){
+    meds.push({
+        nombre: nombre.value,
+        inicio: inicio.value,
+        fin: fin.value,
+        tipo: tipo.value,
+        dosis: dosis.value,
+        cantidad: cantidad.value
+    });
+    guardar();
+    render();
+}
+
+function tomar(i){
+    meds[i].cantidad--;
+
+    historial.push({
+        nombre: meds[i].nombre,
+        fecha: new Date().toLocaleString()
+    });
+
+    if(meds[i].cantidad == 5){
+        alert("⚠️ Solo te quedan 5 de " + meds[i].nombre);
+    }
+
+    guardar();
+    render();
+}
+
+function render(){
+    lista.innerHTML="";
+    historial.innerHTML="";
+
+    meds.forEach((m,i)=>{
+        lista.innerHTML+=`
+        <div class="card">
+        <b>${m.nombre}</b><br>
+        ${m.tipo} | ${m.dosis} al día<br>
+        Restantes: ${m.cantidad}
+        ${m.cantidad <=5 ? '<div class="alerta">⚠️ Pocas unidades</div>' : ''}
+        <br>
+        <button onclick="tomar(${i})">Tomé una</button>
+        </div>`;
+    });
+
+    historial.forEach(h=>{
+        historial.innerHTML+=`<div>${h.nombre} - ${h.fecha}</div>`;
+    });
+}
+
+render();
+</script>
+
+</body>
+</html>
+
